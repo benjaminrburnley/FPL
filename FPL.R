@@ -15,7 +15,7 @@ picks = fromJSON("https://fantasy.premierleague.com/api/entry/3919272/event/GW1/
 
 ### INFO ####
 color_names = c("blue","pink","white","green","purple")
-color_hex = c("#04F5FF","#E90052","#FFFFFF","#00FF85","#38003C")
+color_hex = c("#04F5FF","#E90052","#EAF205","#00FF85","#38003C")
 
 colors = bind_cols(color_names,color_hex)
 
@@ -25,7 +25,6 @@ events = tibble(general_info$events)
 game_settings = tibble(general_info$game_settings)
 phases = tibble(general_info$phases)
 teams = tibble(general_info$teams)
-elements = tibble(general_info$elements)
 elements_stats = tibble(general_info$element_stats)
 elements_types = tibble(general_info$element_type)
 df_fixtures = tibble(fixtures)
