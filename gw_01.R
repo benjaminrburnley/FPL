@@ -102,18 +102,29 @@ gw_1_points %>%
 
 # breakdown by position 
 gw_1_points %>%
-  filter(total_points > 0) %>% 
   mutate(position = case_when(
     element_type == 1 ~ "GKP",
     element_type == 2 ~ "DEF",
     element_type == 3 ~ "MID",
     element_type == 4 ~ "FWD",
-    TRUE ~ NA
-  )) %>% 
-  ggplot(aes("", total_points, fill = position))+
-  geom_col(stat = "identity", width = 1, position = "fill")+
+    TRUE ~ NA),
+    position = factor(position, levels = c("FWD", "MID", "DEF", "GKP"))) %>% 
+  group_by(name, position) %>% 
+  summarise(pos_points = sum(total_points)) %>% 
+  ggplot(aes("", pos_points, fill = position))+
+  geom_col(width = 1, position = "fill")+
   facet_wrap(~name)+
+  scale_fill_manual(values = c("#E90052","#00FF85","#38003C","#04F5FF"))+
   coord_polar("y", start = 0)+
-  theme_void()
+  theme_void()+
+  labs(
+    title = "Points by Position",
+    fill = "Position"
+  )+
+  theme(
+    plot.title = element_text(face = "bold", size = 20),
+    plot.subtitle = element_text(face = "italic", size = 16),
+    strip.text = element_text(face = "italic", size = 16),
+  )
 
 
