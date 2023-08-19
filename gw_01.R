@@ -26,6 +26,7 @@ events = tibble(general_info$events)
 game_settings = tibble(general_info$game_settings)
 phases = tibble(general_info$phases)
 teams = tibble(general_info$teams)
+elements = tibble(general_info$elements)
 elements_stats = tibble(general_info$element_stats)
 elements_types = tibble(general_info$element_type)
 df_fixtures = tibble(fixtures)
@@ -127,4 +128,27 @@ gw_1_points %>%
     strip.text = element_text(face = "italic", size = 16),
   )
 
+## histogram of all players 
+elements %>% 
+  select(first_name, second_name, minutes, total_points) %>% 
+  filter(minutes > 0) %>% 
+  ggplot(aes(total_points))+
+  geom_histogram(binwidth = 1, fill = "#38003C")+
+  theme_minimal()+
+  labs(
+    title = "Distribution of Points Scored",
+    subtitle = "Played > 0 minutes in GW1",
+    x = "Points Scored",
+    y = "# of Players"
+  )+
+  theme(
+    plot.title = element_text(face = "bold", size = 20),
+    plot.subtitle = element_text(face = "italic", size = 16),
+    axis.text = element_text(face = "italic", size = 10)
+  )
 
+# count of points
+elements %>% 
+  select(first_name, second_name, minutes, total_points) %>% 
+  filter(minutes > 0) %>% 
+  count(total_points)
