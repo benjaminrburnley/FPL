@@ -37,7 +37,7 @@ history_past = tibble(player$history_past)
 
 
 # individial data 
-ben = fromJSON("https://fantasy.premierleague.com/api/entry/3919272/event/1/picks/")
+ben = fromJSON("https://fantasy.premierleague.com/api/entry/3919272/event/2/picks/")
 ethan = fromJSON("https://fantasy.premierleague.com/api/entry/6814424/event/1/picks/")
 scott = fromJSON("https://fantasy.premierleague.com/api/entry/395362/event/1/picks/")
 patrick = fromJSON("https://fantasy.premierleague.com/api/entry/6702327/event/1/picks/")
@@ -46,9 +46,7 @@ christian = fromJSON("https://fantasy.premierleague.com/api/entry/7781854/event/
 # individual points totals 
 ben_picks = ben$picks %>% 
   left_join(elements, by = c("element" = "id")) %>% 
-  select(first_name, second_name, element:is_vice_captain, total_points, element_type) %>% 
-  mutate(total_points = total_points*multiplier,
-         name = "Ben")
+  select(first_name, second_name, element:is_vice_captain, total_points, element_type)
 
 ethan_picks = ethan$picks %>% 
   left_join(elements, by = c("element" = "id")) %>% 
@@ -77,6 +75,18 @@ christian_picks = christian$picks %>%
 # combined points totals 
 gw_1_points = ben_picks %>% 
   bind_rows(ethan_picks, scott_picks, patrick_picks, christian_picks)
+
+####  saving data from this week 
+# write_csv(gw_1_points, "data/lp_gw01.csv") # don't unhash!! could overwrite the data
+
+# league score board
+gw_1_points %>% 
+  group_by(name) %>% 
+  summarize(points = sum(total_points)) %>% 
+  ungroup() %>% 
+  arrange(desc(points)) %>% 
+  mutate(points_plus = (points/events$average_entry_score[1]) * 100)
+
 
 # scoreboard 
 gw_1_points %>% 
