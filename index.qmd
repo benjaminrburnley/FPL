@@ -1,0 +1,268 @@
+---
+title: "Vincent's Kompany Leadboard"
+format: 
+  html:
+    self-contained: true
+execute: 
+  warning: false
+  message: false
+  echo: false
+---
+
+```{r}
+#| include: false
+# set up 
+library(tidyverse)
+library(jsonlite)
+library(knitr)
+library(kableExtra)
+```
+
+![](vince.jpg)
+```{r}
+#| include: false
+#### GET INDEX ####
+
+# read in data if already saved 
+scores = read_csv("scores_gw_3.csv")
+general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/") # pull general information JSON
+
+elements = tibble(general_info$elements) # pull out elements dataframe
+
+index = elements$id #index of all active player ids 
+
+
+#### LOOP TO PULL ALL WEEKLY PLAYER DATA ####
+data = tibble() #__________________________________________create base data frame to append to
+
+# loop to pull data
+for(i in index){
+  x = fromJSON(paste("https://fantasy.premierleague.com/api/element-summary/",as.character(i),"/", sep = ""))
+  y = tibble(x$history)
+  data = data %>%
+    bind_rows(y)
+}
+
+names = elements %>% 
+  dplyr::select(id,first_name, second_name,web_name, element_type, team)
+
+#### PULL MANAGER DATA #### 
+
+ get_manager = function(name, id ){
+   test = tibble()
+  for(i in 1:max(data$round)){
+    x = fromJSON(paste("https://fantasy.premierleague.com/api/entry/", as.character(id),"/event/", as.character(i),"/picks/", sep = ""))
+    y = tibble(x$picks) %>%
+      mutate(round = i)
+    test = test %>%
+      bind_rows(y) %>%
+      mutate(manager = name)
+  }
+  return(test)
+}
+
+get_hits = function(name, id){
+  test = tibble()
+   for(i in 1:max(data$round)){
+     x = fromJSON(paste("https://fantasy.premierleague.com/api/entry/", as.character(id),"/event/", as.character(i),"/picks/", sep = ""))
+     y = tibble(
+       manager = name,
+       round = i,
+       hit = x$entry_history[["event_transfers_cost"]],
+       pob = x$entry_history[["points_on_bench"]]
+     )
+     test = test %>% 
+       bind_rows(y)
+   }
+  return(test)
+}
+# 
+# # individual manager pulls
+ben = get_manager("Ben", 3919272)
+ethan = get_manager("Ethan", 6814424)
+scott = get_manager("Scott", 395362)
+patrick = get_manager("Patrick", 6702327)
+christian = get_manager("Christian", 7781854)
+
+# get hits 
+ben_hits = get_hits("Ben", 3919272)
+ethan_hits = get_hits("Ethan", 6814424)
+scott_hits = get_hits("Scott", 395362)
+patrick_hits = get_hits("Patrick", 6702327)
+christian_hits = get_hits("Christian", 7781854)
+
+# # bind together with names and points
+scores = ben %>%
+  bind_rows(ethan, scott, patrick, christian) %>%
+  left_join(names, by = c("element" = "id")) %>%
+  left_join(data, by = c("element" = "element", "round" = "round"))
+
+# bind hits 
+hits = ben_hits %>% 
+  bind_rows(ethan_hits, scott_hits, patrick_hits, christian_hits)
+
+# calculate total hits
+total_hits = hits %>% 
+  group_by(manager) %>% 
+  summarize(hits = sum(hit))
+
+# write scores for gw3
+write_csv(scores, "scores_gw_4.csv")
+#scores = read_csv("scores_gw3.csv")
+
+
+#### Scoreboards ####
+average_scores = tibble(general_info$events) %>% 
+  select(id, average_entry_score) %>% 
+  filter(average_entry_score != 0)
+
+# calculate 
+scoreboard = scores %>% 
+  left_join(average_scores, by = c("round" = "id")) %>% 
+  mutate(gw_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarize(gw_points = sum(gw_points, na.rm = T)) %>% 
+  left_join(hits, by = c("manager", "round")) %>% 
+  mutate(adj_points = gw_points - hit,
+         total_points = cumsum(adj_points)) %>% 
+  ungroup() %>% 
+  left_join(average_scores, by = c("round" = "id")) %>% 
+  mutate(points_plus = round(adj_points/average_entry_score * 100))
+```
+
+# Overall Points
+```{r}
+# pull from scoreboard
+overall_points = scoreboard %>% 
+  filter(round == max(round)) %>% 
+  select(manager, total_points) %>% 
+  arrange(desc(total_points))
+
+kable(overall_points, col.names = c("Manager", "Total Points")) %>% 
+  kable_material()
+```
+```{r}
+# bring in average scores
+average_manager = tibble(general_info$events) %>% 
+  select(id, average_entry_score) %>% 
+  mutate(manager = "Average") %>% 
+  select(manager, id, average_entry_score) %>% 
+  rename(
+    "manager" = "manager",
+    "round" = "id",
+    "total_points" = "average_entry_score"
+  ) %>% 
+  mutate(cum_points = cumsum(total_points)) %>% 
+  filter(total_points != 0)
+
+scores %>% 
+  mutate(round_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarise(total_points = sum(round_points, na.rm = T)) %>% 
+  ungroup() %>% 
+  left_join(hits, by = c("manager", "round")) %>%
+  mutate(adj_points = total_points - hit) %>% 
+  group_by(manager) %>% 
+  mutate(cum_points = cumsum(adj_points))  %>% 
+  ggplot(aes(round, cum_points, color = manager))+
+  geom_point()+
+  geom_point(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75)+
+  geom_line()+
+  geom_line(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75, linetype = "dashed")+
+  scale_x_continuous(n.breaks = max(scores$round))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  theme_minimal()+
+  labs(
+    title = "Overall Points",
+    x = "Gameweek",
+    y = "Total Points",
+    color = NULL,
+    caption = "Dashed line shows FPL Global Average"
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+```
+```{r}
+scores %>% 
+  mutate(round_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarise(gw_points = sum(round_points, na.rm = T)) %>%
+  group_by(manager) %>% 
+  left_join(hits, by = c("manager", "round")) %>% 
+  mutate(adj_points = gw_points - hit) %>% 
+  group_by(manager) %>% 
+  mutate(total_points = cumsum(adj_points)) %>% 
+  group_by(round) %>% 
+  mutate(position = 6 - rank(total_points)) %>% 
+  ggplot(aes(round, position, color = manager))+
+  geom_point(size = 4)+
+  geom_line()+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_x_continuous(n.breaks = max(scores$round))+
+  scale_y_reverse()+
+  theme_minimal()+
+  labs(
+    title = "League Position",
+    y = "Position",
+    x = "Gameweek",
+    color = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+  
+```
+# Most Recent Gameweek 
+```{r}
+recent_gameweek = scores %>% 
+  mutate(round_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarise(total_points = sum(round_points,na.rm = T)) %>% 
+  left_join(average_scores, by = c("round" = "id")) %>% 
+  filter(round == max(round)) %>% 
+  mutate(points_plus = round(total_points/average_entry_score*100)) %>% 
+  select(manager, total_points, points_plus) %>% 
+  arrange(desc(total_points))
+
+kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>% 
+  kable_material()
+```
+
+
+# Top Gameweek 
+```{r}
+# best gameweek
+best_gameweek = scores %>% 
+  mutate(round_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarise(total_points = sum(round_points,na.rm = T)) %>% 
+  left_join(average_scores, by = c("round" = "id")) %>% 
+  mutate(points_plus = round(total_points/average_entry_score * 100)) %>% 
+  select(-average_entry_score) %>% 
+  arrange(desc(total_points)) %>% 
+  ungroup() %>% 
+  top_n(n = 10)
+
+kable(best_gameweek, col.names = c("Manager", "GW", "Total Points", "Points+")) %>% 
+  kable_material()
+```
+
+# Gameweek Wins
+```{r}
+wins = scores %>% 
+  mutate(round_points = total_points * multiplier) %>% 
+  group_by(manager, round) %>% 
+  summarise(total_points = sum(round_points,na.rm = T)) %>% 
+  group_by(round) %>% 
+  mutate(won_gameweek = total_points == max(total_points)) %>% 
+  group_by(manager) %>% 
+  summarise(wins = sum(won_gameweek)) %>% 
+  ungroup() %>% 
+  arrange(desc(wins))
+
+kable(wins, col.names = c("Manager", "Wins")) %>% 
+  kable_material()
+```
+
+

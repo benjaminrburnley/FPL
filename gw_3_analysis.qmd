@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+format: html
+---
+```{r}
+# set up 
+library(tidyverse)
+library(jsonlite)
+library(knitr)
+library(kableExtra)
+
+general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/")
+elements = tibble(general_info$elements)
+```
+
+```{r}
+# team table
+teams = tibble(general_info$teams)
+
+# minutes by defenders
+p1 = elements %>% 
+  dplyr::select(id,first_name, second_name,web_name, element_type, team) %>% 
+  left_join(data, by = c("id" = "element")) %>% 
+  group_by(id, web_name) %>% 
+  mutate(pct_minutes = round(sum(minutes)/270 * 100)) %>% 
+  left_join(teams, by = c("team" = "id")) %>% 
+  select(web_name, name, round, element_type, pct_minutes) %>% 
+  filter(round == 3) %>% 
+  filter(element_type == 2) %>% 
+  arrange(desc(pct_minutes))
+
+# cost and points of defenders
+p2 = elements %>% 
+  select(id, now_cost, total_points)
+
+# merge 
+data = p1 %>% 
+  left_join(p2, by = "id")
+
+
+# plot 
+data %>% 
+  mutate(now_cost = now_cost/10) %>% 
+  ggplot(aes(pct_minutes, total_points, color = now_cost))+
+  geom_point()+
+  ggrepel::geom_label_repel(aes(label = web_name),)+
+  scale_color_viridis_c()+
+  scale_x_continuous(labels = scales::percent_format(scale = 1))+
+  theme_minimal()+
+  labs(
+    title = "am i on to something?",
+    x = "Percent of Teams Minutes Played",
+    y = "Total Points",
+    color = "Cost"
+  )
+```
+
+```{r}
+scoreboard %>% 
+  ggplot(aes(round, points_plus, color = manager))+
+  geom_point()+
+  geom_line()+
+  geom_hline(yintercept = 100, linetype = "dashed")+
+  scale_x_continuous(n.breaks = max(scores$round))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  theme_minimal()+
+  labs(
+    title = "Points+ Form",
+    x = "Gameweek",
+    y = "Points+",
+    color = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+```
+```{r}
+data %>% 
+  arrange(desc(total_points)) %>% 
+  select(web_name, name, pct_minutes, total_points) %>% 
+  top_n(10)
+```
+
