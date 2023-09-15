@@ -172,6 +172,8 @@ scores %>%
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
+  xlim(c(0,38))+
+  ylim(c(0,2280))+
   labs(
     title = "Overall Points",
     x = "Gameweek",
@@ -265,4 +267,26 @@ kable(wins, col.names = c("Manager", "Wins")) %>%
   kable_material()
 ```
 
+# Manager Form 
+```{r}
+#| message: false
+#| warning: false
+
+ggplot(scoreboard, aes(round, points_plus, color = manager))+
+  geom_point()+
+  geom_smooth(se = F)+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_x_continuous(n.breaks = max(scores$round))+
+  geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
+  theme_minimal()+
+    labs(
+    title = "Manager Form",
+    y = "Points+",
+    x = "Gameweek",
+    color = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+```
 
