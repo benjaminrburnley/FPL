@@ -35,8 +35,8 @@ names = elements %>%
   dplyr::select(id,first_name, second_name,web_name, element_type, team)
 
 ## main data
-stats = read_csv("data/gw06_stats.csv")
-scores = read_csv("data/gw06_scores.csv")
+stats = read_csv("data/gw07_stats.csv")
+scores = read_csv("data/gw07_scores.csv")
 ```
 
 # Overall Points
@@ -88,6 +88,30 @@ scores %>%
 scores %>% 
   group_by(round) %>% 
   mutate(position = 6 - rank(total_points)) %>% 
+  arrange(round, position) %>% 
+  mutate(gap = total_points - lead(total_points),
+         gap = replace_na(gap, 0)) %>% 
+  ggplot(aes(round, gap, fill= factor(position)))+
+  geom_area()+
+  scale_fill_manual(values = c("#6CABDD","#00FF85","#C8102E","#38003C","#EDBB00"), labels = c("Ethan", "Scott", "Patrick", "Ben", "Christian"))+
+  theme_minimal()+
+  labs(
+    title = "Current Leads by Position",
+    subtitle = "Color of lead associated with who currently holds the position",
+    x = "Gameweek",
+    y = "Lead",
+    fill = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+
+```{r}
+scores %>% 
+  group_by(round) %>% 
+  mutate(position = 6 - rank(total_points)) %>% 
   ggplot(aes(round, position, color = manager))+
   geom_point(size = 4)+
   geom_line()+
@@ -114,12 +138,12 @@ average_scores = average_manager %>%
   select(round, average_points)
 
 #calculate gameweek
-recent_gameweek = scores %>%
+ recent_gameweek = scores %>%
   left_join(average_scores, by = "round") %>% 
   filter(round == max(round)) %>% 
-  mutate(points_plus = round(adj_points/average_points*100)) %>% 
-  select(manager, adj_points, points_plus) %>% 
-  arrange(desc(adj_points))
+  mutate(points_plus = round(gw_points/average_points*100)) %>% 
+  select(manager, gw_points, points_plus) %>% 
+  arrange(desc(gw_points))
 
 kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>% 
   kable_material()
@@ -131,9 +155,9 @@ kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>%
 # best gameweek
 best_gameweek = scores %>% 
   left_join(average_scores, by = "round") %>% 
-  mutate(points_plus = round(adj_points/average_points * 100)) %>% 
-  select(manager, round, adj_points, points_plus) %>% 
-  arrange(desc(adj_points)) %>% 
+  mutate(points_plus = round(gw_points/average_points * 100)) %>% 
+  select(manager, round, gw_points, points_plus) %>% 
+  arrange(desc(gw_points)) %>% 
   ungroup() %>% 
   top_n(n = 10)
 
@@ -145,7 +169,7 @@ kable(best_gameweek, col.names = c("Manager", "GW", "Total Points", "Points+")) 
 ```{r}
 wins = scores %>% 
   group_by(round) %>% 
-  mutate(won_gameweek = adj_points == max(adj_points)) %>% 
+  mutate(won_gameweek = gw_points == max(gw_points)) %>% 
   group_by(manager) %>% 
   summarise(wins = sum(won_gameweek)) %>% 
   ungroup() %>% 
@@ -161,7 +185,7 @@ kable(wins, col.names = c("Manager", "Wins")) %>%
 #| warning: false
 
 ggplot(scores, aes(round, points_plus, color = manager))+
-  geom_point()+
+  geom_point(alpha = 0.5)+
   geom_smooth(se = F)+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   scale_x_continuous(n.breaks = max(scores$round))+
