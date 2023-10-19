@@ -35,8 +35,8 @@ names = elements %>%
   dplyr::select(id,first_name, second_name,web_name, element_type, team)
 
 ## main data
-stats = read_csv("data/gw07_stats.csv")
-scores = read_csv("data/gw07_scores.csv")
+stats = read_csv("data/gw08_stats.csv")
+scores = read_csv("data/gw08_scores.csv")
 ```
 
 # Overall Points
@@ -185,7 +185,7 @@ kable(wins, col.names = c("Manager", "Wins")) %>%
 #| warning: false
 
 ggplot(scores, aes(round, points_plus, color = manager))+
-  geom_point(alpha = 0.5)+
+  geom_point(alpha = 0.25)+
   geom_smooth(se = F)+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   scale_x_continuous(n.breaks = max(scores$round))+
