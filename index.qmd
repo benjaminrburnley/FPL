@@ -202,3 +202,45 @@ ggplot(scores, aes(round, points_plus, color = manager))+
   )
 ```
 
+# Hits Taken 
+```{r}
+scores %>% 
+  group_by(manager) %>%
+  summarise(tot_hits = sum(hit), hits_taken = tot_hits/4) %>% 
+  ggplot(aes(reorder(manager, desc(tot_hits)), tot_hits, fill = manager))+
+  geom_col()+
+  labs(
+    title = "Hits Leaderboard",
+    x = NULL,
+    y = "Points Lost to Hits",
+    fill = NULL
+  )+
+  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
+  theme_minimal()+
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(face = "bold", size = 10)
+  )
+```
+# Points Left on Bench
+```{r}
+scores %>% 
+  group_by(manager) %>%
+  summarise(tot_pob = sum(pob)) %>% 
+  ggplot(aes(reorder(manager, desc(tot_pob)), tot_pob, fill = manager))+
+  geom_col() +
+  labs(
+    title = "Points On Bench Leaderboard",
+    x = NULL,
+    y = "Points Lost to The Bench",
+    fill = NULL
+  )+
+  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
+  theme_minimal()+
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(face = "bold", size = 10)
+  )
+  
+```
+
