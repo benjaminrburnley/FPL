@@ -35,8 +35,9 @@ names = elements %>%
   dplyr::select(id,first_name, second_name,web_name, element_type, team)
 
 ## main data
-stats = read_csv("data/gw09_stats.csv")
-scores = read_csv("data/gw09_scores.csv")
+elements = read_csv("data/gw012_elements.csv")
+stats = read_csv("data/gw012_stats.csv")
+scores = read_csv("data/gw012_scores.csv")
 ```
 
 # Overall Points
@@ -73,6 +74,8 @@ scores %>%
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
+  # xlim(5,9)+
+  # ylim(200,650)+
   labs(
     title = "Overall Points",
     x = "Gameweek",
@@ -154,12 +157,9 @@ kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>%
 ```{r}
 # best gameweek
 best_gameweek = scores %>% 
-  left_join(average_scores, by = "round") %>% 
-  mutate(points_plus = round(gw_points/average_points * 100)) %>% 
-  select(manager, round, gw_points, points_plus) %>% 
   arrange(desc(gw_points)) %>% 
-  ungroup() %>% 
-  top_n(n = 10)
+  select(manager, round, gw_points, points_plus) %>% 
+  head(10)
 
 kable(best_gameweek, col.names = c("Manager", "GW", "Total Points", "Points+")) %>% 
   kable_material()
