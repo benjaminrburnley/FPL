@@ -35,9 +35,9 @@ names = elements %>%
   dplyr::select(id,first_name, second_name,web_name, element_type, team)
 
 ## main data
-elements = read_csv("data/gw16_elements.csv")
-stats = read_csv("data/gw16_stats.csv")
-scores = read_csv("data/gw16_scoreboard.csv")
+elements = read_csv("data/gw17_elements.csv")
+stats = read_csv("data/gw17_stats.csv")
+scores = read_csv("data/gw17_scoreboard.csv")
 ```
 
 # Overall Points
