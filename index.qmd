@@ -23,21 +23,22 @@ library(kableExtra)
 #| include: false
 #### GET INDEX ####
 
-# read in data if already saved 
+# read in data if already saved
 
-general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/") # pull general information JSON
+ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/") # pull general information JSON
 
-elements = tibble(general_info$elements) # pull out elements dataframe
+ elements = tibble(general_info$elements) # pull out elements dataframe
+
+# main data
+elements = read_csv("data/gw21_elements.csv")
+stats = read_csv("data/gw21_stats.csv")
+scores = read_csv("data/gw21_scoreboard.csv")
+scoreboard = read_csv("data/gw21_scores.csv")
 
 index = elements$id #index of all active player ids 
 
 names = elements %>% 
   dplyr::select(id,first_name, second_name,web_name, element_type, team)
-
-## main data
-elements = read_csv("data/gw20_elements.csv")
-stats = read_csv("data/gw20_stats.csv")
-scores = read_csv("data/gw20_scoreboard.csv")
 ```
 
 # Overall Points
@@ -74,8 +75,8 @@ scores %>%
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
-  # xlim(5,9)+
-  # ylim(200,650)+
+   # xlim(17,21)+
+   # ylim(750,1350)+
   labs(
     title = "Overall Points",
     x = "Gameweek",
@@ -177,6 +178,29 @@ wins = scores %>%
 
 kable(wins, col.names = c("Manager", "Wins")) %>% 
   kable_material()
+
+scores %>% 
+  group_by(round) %>% 
+  mutate(won_gameweek = gw_points == max(gw_points)) %>% 
+  ungroup() %>% 
+  arrange(round) %>%
+  group_by(manager) %>% 
+  mutate(win_total = cumsum(won_gameweek)) %>% 
+  ggplot(aes(round, win_total, color = manager))+
+  geom_point()+
+  geom_line()+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  theme_minimal()+
+  labs(
+    title = "Gameweek Wins",
+    x = "Gameweek",
+    y = "Gameweeks Won",
+    color = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+
 ```
 
 # Manager Form 
