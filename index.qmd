@@ -30,10 +30,10 @@ library(kableExtra)
  elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw21_elements.csv")
-stats = read_csv("data/gw21_stats.csv")
-scores = read_csv("data/gw21_scoreboard.csv")
-scoreboard = read_csv("data/gw21_scores.csv")
+elements = read_csv("data/gw22_elements.csv")
+stats = read_csv("data/gw22_stats.csv")
+scores = read_csv("data/gw22_scoreboard.csv")
+scoreboard = read_csv("data/gw22_scores.csv")
 
 index = elements$id #index of all active player ids 
 
@@ -75,10 +75,9 @@ scores %>%
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
-   # xlim(17,21)+
+   # xlim(17,22)+
    # ylim(750,1350)+
   labs(
-    title = "Overall Points",
     x = "Gameweek",
     y = "Total Points",
     color = NULL,
@@ -111,7 +110,7 @@ scores %>%
 #   )
 ```
 
-
+# League Position
 ```{r}
 scores %>% 
   group_by(round) %>% 
@@ -122,9 +121,9 @@ scores %>%
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_y_reverse()+
+  # xlim(17,22)+
   theme_minimal()+
   labs(
-    title = "League Position",
     y = "Position",
     x = "Gameweek",
     color = NULL
@@ -154,7 +153,7 @@ kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>%
 ```
 
 
-# Top Gameweek 
+# Top Gameweek - Points
 ```{r}
 # best gameweek
 best_gameweek = scores %>% 
@@ -163,6 +162,17 @@ best_gameweek = scores %>%
   head(10)
 
 kable(best_gameweek, col.names = c("Manager", "GW", "Total Points", "Points+")) %>% 
+  kable_material()
+```
+# Top Gameweek - Points Plus
+```{r}
+# best gameweek points plust
+best_gameweek = scores %>% 
+  arrange(desc(points_plus)) %>% 
+  select(manager, round, points_plus, gw_points) %>% 
+  head(10)
+
+kable(best_gameweek, col.names = c("Manager", "GW", "Points+", "Total Points")) %>% 
   kable_material()
 ```
 
@@ -187,12 +197,11 @@ scores %>%
   group_by(manager) %>% 
   mutate(win_total = cumsum(won_gameweek)) %>% 
   ggplot(aes(round, win_total, color = manager))+
-  geom_point()+
   geom_line()+
+  geom_point()+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
   labs(
-    title = "Gameweek Wins",
     x = "Gameweek",
     y = "Gameweeks Won",
     color = NULL
@@ -215,8 +224,8 @@ ggplot(scores, aes(round, points_plus, color = manager))+
   scale_x_continuous(n.breaks = max(scores$round))+
   geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
   theme_minimal()+
+  # xlim(17,22)+
     labs(
-    title = "Manager Form",
     y = "Points+",
     x = "Gameweek",
     color = NULL
@@ -234,7 +243,6 @@ scores %>%
   ggplot(aes(reorder(manager, desc(tot_hits)), tot_hits, fill = manager))+
   geom_col()+
   labs(
-    title = "Hits Leaderboard",
     x = NULL,
     y = "Points Lost to Hits",
     fill = NULL
@@ -254,7 +262,6 @@ scores %>%
   ggplot(aes(reorder(manager, desc(tot_pob)), tot_pob, fill = manager))+
   geom_col() +
   labs(
-    title = "Points On Bench Leaderboard",
     x = NULL,
     y = "Points Lost to The Bench",
     fill = NULL
