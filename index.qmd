@@ -66,24 +66,48 @@ average_manager = tibble(general_info$events) %>%
   mutate(cum_points = cumsum(total_points)) %>% 
   filter(total_points != 0)
 
-scores %>% 
-  ggplot(aes(round, total_points, color = manager))+
+# scores %>% 
+#   ggplot(aes(round, total_points, color = manager))+
+#   geom_point()+
+#   geom_point(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75)+
+#   geom_line()+
+#   geom_line(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75, linetype = "dashed")+
+#   scale_x_continuous(n.breaks = max(scores$round))+
+#   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+#   theme_minimal()+
+#    # xlim(17,22)+
+#    # ylim(750,1350)+
+#   labs(
+#     x = "Gameweek",
+#     y = "Total Points",
+#     color = NULL,
+#     caption = "Dashed line shows FPL Global Average"
+#   )+
+#   theme(
+#     legend.position = "bottom"
+#   )
+
+scores |> 
+  select(manager, round, adj_points, average_entry_score) |> 
+  mutate(adj_score = adj_points - average_entry_score) |> 
+  group_by(manager) |> 
+  mutate(total_adj_score = cumsum(adj_score)) |> 
+  group_by(round) |> 
+  mutate(leader_score = total_adj_score - max(total_adj_score)) |> 
+  ungroup() |> 
+  ggplot(aes(factor(round), leader_score, color = manager))+
   geom_point()+
-  geom_point(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75)+
-  geom_line()+
-  geom_line(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75, linetype = "dashed")+
-  scale_x_continuous(n.breaks = max(scores$round))+
+  geom_line(aes(group = manager))+
+  labs(
+    title = "League Progression",
+    color = NULL,
+    y = "Distance Behind Leader",
+    x = "Gameweek"
+  )+
   scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
-   # xlim(17,22)+
-   # ylim(750,1350)+
-  labs(
-    x = "Gameweek",
-    y = "Total Points",
-    color = NULL,
-    caption = "Dashed line shows FPL Global Average"
-  )+
   theme(
+    plot.title = element_text(face = "bold", size = 14),
     legend.position = "bottom"
   )
 ```
