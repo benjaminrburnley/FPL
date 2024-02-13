@@ -30,10 +30,10 @@ library(kableExtra)
  elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw23_elements.csv")
-stats = read_csv("data/gw23_stats.csv")
-scores = read_csv("data/gw23_scoreboard.csv")
-scoreboard = read_csv("data/gw23_scores.csv")
+elements = read_csv("data/gw24_elements.csv")
+stats = read_csv("data/gw24_stats.csv")
+scores = read_csv("data/gw24_scoreboard.csv")
+scoreboard = read_csv("data/gw24_scores.csv")
 
 index = elements$id #index of all active player ids 
 
@@ -66,7 +66,7 @@ average_manager = tibble(general_info$events) %>%
   mutate(cum_points = cumsum(total_points)) %>% 
   filter(total_points != 0)
 
-# scores %>% 
+# scores %>%
 #   ggplot(aes(round, total_points, color = manager))+
 #   geom_point()+
 #   geom_point(data = average_manager, aes(round, cum_points), color = "darkgrey", alpha = 0.75)+
