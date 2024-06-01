@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw38_elements.csv")
+elements = read_csv("data/gw38_elements.csv") 
 stats = read_csv("data/gw38_stats.csv")
-scores = read_csv("data/gw38_scoreboard.csv")
-scoreboard = read_csv("data/gw38_scores.csv")
+scores = read_csv("data/gw38_scoreboard.csv") 
+scoreboard = read_csv("data/gw38_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -44,13 +44,12 @@ names = elements %>%
 # Overall Points
 ```{r}
 # pull from scoreboard
-overall_points = scores %>% 
+scores %>% 
   filter(round == max(round)) %>% 
   select(manager, total_points) %>% 
-  arrange(desc(total_points))
-
-kable(overall_points, col.names = c("Manager", "Total Points")) %>% 
-  kable_material()
+  arrange(desc(total_points)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  kable(col.names = c("Manager", "Total Points"))
 ```
 ```{r}
 # bring in average scores
@@ -165,39 +164,36 @@ average_scores = average_manager %>%
   select(round, average_points)
 
 #calculate gameweek
- recent_gameweek = scores %>%
+scores %>%
   left_join(average_scores, by = "round") %>% 
   filter(round == max(round)) %>% 
   mutate(points_plus = round(gw_points/average_points*100)) %>% 
   select(manager, gw_points, points_plus) %>% 
-  arrange(desc(gw_points))
-
-kable(recent_gameweek, col.names = c("Manager", "Points", "Points+")) %>% 
-  kable_material()
+  arrange(desc(gw_points)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  kable(col.names = c("Manager", "Points", "Points+"))
 ```
 
 
 # Top Gameweek - Points
 ```{r}
 # best gameweek
-best_gameweek = scores %>% 
+scores %>% 
   arrange(desc(gw_points)) %>% 
   select(manager, round, gw_points, points_plus) %>% 
-  head(10)
-
-kable(best_gameweek, col.names = c("Manager", "GW", "Total Points", "Points+")) %>% 
-  kable_material()
+  head(10) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  kable(col.names = c("Manager", "GW", "Total Points", "Points+"))
 ```
 # Top Gameweek - Points Plus
 ```{r}
 # best gameweek points plust
-best_gameweek = scores %>% 
+  scores %>% 
   arrange(desc(points_plus)) %>% 
   select(manager, round, points_plus, gw_points) %>% 
-  head(10)
-
-kable(best_gameweek, col.names = c("Manager", "GW", "Points+", "Total Points")) %>% 
-  kable_material()
+  head(10) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  kable(col.names = c("Manager", "GW", "Points+", "Total Points"))
 ```
 
 # Gameweek Wins
@@ -210,8 +206,7 @@ wins = scores %>%
   ungroup() %>% 
   arrange(desc(wins))
 
-kable(wins, col.names = c("Manager", "Wins")) %>% 
-  kable_material()
+kable(wins, col.names = c("Manager", "Wins"))
 
 scores %>% 
   group_by(round) %>% 
