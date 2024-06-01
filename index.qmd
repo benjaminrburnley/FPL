@@ -198,15 +198,15 @@ scores %>%
 
 # Gameweek Wins
 ```{r}
-wins = scores %>% 
+scores %>% 
   group_by(round) %>% 
   mutate(won_gameweek = gw_points == max(gw_points)) %>% 
   group_by(manager) %>% 
   summarise(wins = sum(won_gameweek)) %>% 
   ungroup() %>% 
-  arrange(desc(wins))
-
-kable(wins, col.names = c("Manager", "Wins"))
+  arrange(desc(wins)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  kable(col.names = c("Manager", "Wins"))
 
 scores %>% 
   group_by(round) %>% 
