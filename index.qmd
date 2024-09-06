@@ -18,7 +18,7 @@ library(knitr)
 library(kableExtra)
 ```
 
-![](vince.jpg)
+![](vince.png)
 ```{r}
 #| include: false
 #### GET INDEX ####
@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw38_elements.csv") 
-stats = read_csv("data/gw38_stats.csv")
-scores = read_csv("data/gw38_scoreboard.csv") 
-scoreboard = read_csv("data/gw38_scores.csv") 
+elements = read_csv("data/gw03_elements.csv") 
+stats = read_csv("data/gw03_stats.csv")
+scores = read_csv("data/gw03_scoreboard.csv") 
+scoreboard = read_csv("data/gw03_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -48,7 +48,7 @@ scores %>%
   filter(round == max(round)) %>% 
   select(manager, total_points) %>% 
   arrange(desc(total_points)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "Total Points"))
 ```
 ```{r}
@@ -64,6 +64,19 @@ average_manager = tibble(general_info$events) %>%
   ) %>% 
   mutate(cum_points = cumsum(total_points)) %>% 
   filter(total_points != 0)
+
+# gameweek 0
+gw0 = tibble(
+  manager = c("Ben", "Christian", "Dan", "Ethan", "Luke", "Patrick", "Scott", "Yuheng"),
+  round = rep(0, 8),
+  gw_points = rep(0, 8),
+  hit = rep(0,8),
+  pob = rep(0,8),
+  adj_points = rep(0,8),
+  total_points = rep(0,8),
+  average_entry_points = rep(0,8),
+  points_plus = rep(0,8)
+)
 
 # scores %>%
 #   ggplot(aes(round, total_points, color = manager))+
@@ -103,7 +116,7 @@ scores |>
     y = "Distance Behind Leader",
     x = "Gameweek"
   )+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -141,7 +154,7 @@ scores %>%
   ggplot(aes(round, position, color = manager))+
   geom_point(size = 4)+
   geom_line()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_y_reverse()+
   # xlim(17,22)+
@@ -154,7 +167,6 @@ scores %>%
   theme(
     legend.position = "bottom"
   )
-  
 ```
 # Most Recent Gameweek 
 ```{r}
@@ -170,7 +182,7 @@ scores %>%
   mutate(points_plus = round(gw_points/average_points*100)) %>% 
   select(manager, gw_points, points_plus) %>% 
   arrange(desc(gw_points)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "Points", "Points+"))
 ```
 
@@ -182,7 +194,7 @@ scores %>%
   arrange(desc(gw_points)) %>% 
   select(manager, round, gw_points, points_plus) %>% 
   head(10) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "GW", "Total Points", "Points+"))
 ```
 # Top Gameweek - Points Plus
@@ -192,7 +204,7 @@ scores %>%
   arrange(desc(points_plus)) %>% 
   select(manager, round, points_plus, gw_points) %>% 
   head(10) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "GW", "Points+", "Total Points"))
 ```
 
@@ -205,7 +217,7 @@ scores %>%
   summarise(wins = sum(won_gameweek)) %>% 
   ungroup() %>% 
   arrange(desc(wins)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U1F3C6", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "Wins"))
 
 scores %>% 
@@ -218,7 +230,7 @@ scores %>%
   ggplot(aes(round, win_total, color = manager))+
   geom_line()+
   geom_point()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   theme_minimal()+
   labs(
     x = "Gameweek",
@@ -239,7 +251,7 @@ scores %>%
 ggplot(scores, aes(round, points_plus, color = manager))+
   geom_point(alpha = 0.33)+
   geom_smooth(se = F)+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   scale_x_continuous(n.breaks = max(scores$round))+
   geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
   theme_minimal()+
@@ -266,7 +278,8 @@ scores %>%
     y = "Points Lost to Hits",
     fill = NULL
   )+
-  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
+  scale_fill_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"),
+                     guide = "none")+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -285,7 +298,8 @@ scores %>%
     y = "Points Lost to The Bench",
     fill = NULL
   )+
-  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
+  scale_fill_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"), 
+                    guide = "none")+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -298,7 +312,7 @@ scores |>
   ggplot(aes(round, cpob, color = manager))+
   geom_point()+
   geom_line()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   theme_minimal()+
   labs(
     x = "Gameweek",
