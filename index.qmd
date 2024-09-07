@@ -150,7 +150,7 @@ scores |>
 ```{r}
 scores %>% 
   group_by(round) %>% 
-  mutate(position = 6 - rank(total_points)) %>% 
+  mutate(position = 9 - rank(total_points)) %>% 
   ggplot(aes(round, position, color = manager))+
   geom_point(size = 4)+
   geom_line()+
