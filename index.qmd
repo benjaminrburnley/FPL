@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw07_elements.csv") 
-stats = read_csv("data/gw07_stats.csv")
-scores = read_csv("data/gw07_scoreboard.csv") 
-scoreboard = read_csv("data/gw07_scores.csv") 
+elements = read_csv("data/gw08_elements.csv") 
+stats = read_csv("data/gw08_stats.csv")
+scores = read_csv("data/gw08_scoreboard.csv") 
+scoreboard = read_csv("data/gw08_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -146,6 +146,31 @@ scores |>
 #   )
 ```
 
+
+# Manager Form 
+```{r}
+#| message: false
+#| warning: false
+
+ggplot(scores, aes(round, points_plus, color = manager))+
+  geom_point(alpha = 0.33)+
+  geom_smooth(se = F)+
+  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
+  scale_x_continuous(n.breaks = max(scores$round))+
+  geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
+  theme_minimal()+
+  # xlim(17,22)+
+    labs(
+    y = "Points+",
+    x = "Gameweek",
+    color = NULL
+  )+
+  theme(
+    legend.position = "bottom"
+  )
+```
+
+
 # League Position
 ```{r}
 scores %>% 
@@ -241,29 +266,6 @@ scores %>%
     legend.position = "bottom"
   )
 
-```
-
-# Manager Form 
-```{r}
-#| message: false
-#| warning: false
-
-ggplot(scores, aes(round, points_plus, color = manager))+
-  geom_point(alpha = 0.33)+
-  geom_smooth(se = F)+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
-  scale_x_continuous(n.breaks = max(scores$round))+
-  geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
-  theme_minimal()+
-  # xlim(17,22)+
-    labs(
-    y = "Points+",
-    x = "Gameweek",
-    color = NULL
-  )+
-  theme(
-    legend.position = "bottom"
-  )
 ```
 
 # Hits Taken 
