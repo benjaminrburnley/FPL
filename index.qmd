@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw08_elements.csv") 
-stats = read_csv("data/gw08_stats.csv")
-scores = read_csv("data/gw08_scoreboard.csv") 
-scoreboard = read_csv("data/gw08_scores.csv") 
+elements = read_csv("data/gw10_elements.csv") 
+stats = read_csv("data/gw10_stats.csv")
+scores = read_csv("data/gw10_scoreboard.csv") 
+scoreboard = read_csv("data/gw10_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
