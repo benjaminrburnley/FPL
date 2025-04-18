@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw24_elements.csv") 
-stats = read_csv("data/gw24_stats.csv")
-scores = read_csv("data/gw24_scoreboard.csv") 
-scoreboard = read_csv("data/gw24_scores.csv") 
+elements = read_csv("data/gw32_elements.csv") 
+stats = read_csv("data/gw32_stats.csv")
+scores = read_csv("data/gw32_scoreboard.csv") 
+scoreboard = read_csv("data/gw32_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -217,16 +217,17 @@ Excluding Double Gameweeks
 ```{r}
 # best gameweek
 scores %>% 
-  filter(!(round == 24)) |> 
+  filter(!(round %in% c(24, 25))) |> 
   arrange(desc(gw_points)) %>% 
   select(manager, round, gw_points, points_plus) %>% 
   head(10) |> 
   mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "GW", "Total Points", "Points+"))
 ```
+
 # Top Gameweek - Points Plus
 ```{r}
-# best gameweek points plust
+# best gameweek points plus
   scores %>% 
   arrange(desc(points_plus)) %>% 
   select(manager, round, points_plus, gw_points) %>% 
