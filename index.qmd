@@ -18,7 +18,7 @@ library(knitr)
 library(kableExtra)
 ```
 
-![](vince.png)
+![](vince_trophy.webp)
 ```{r}
 #| include: false
 #### GET INDEX ####
@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw32_elements.csv") 
-stats = read_csv("data/gw32_stats.csv")
-scores = read_csv("data/gw32_scoreboard.csv") 
-scoreboard = read_csv("data/gw32_scores.csv") 
+elements = read_csv("data/gw05_elements.csv") 
+stats = read_csv("data/gw05_stats.csv")
+scores = read_csv("data/gw05_scoreboard.csv") 
+scoreboard = read_csv("data/gw05_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -48,7 +48,7 @@ scores %>%
   filter(round == max(round)) %>% 
   select(manager, total_points) %>% 
   arrange(desc(total_points)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605 \U2605", manager)) |> 
   kable(col.names = c("Manager", "Total Points"))
 ```
 ```{r}
@@ -67,15 +67,15 @@ average_manager = tibble(general_info$events) %>%
 
 # gameweek 0
 gw0 = tibble(
-  manager = c("Ben", "Christian", "Dan", "Ethan", "Luke", "Patrick", "Scott", "Yuheng"),
-  round = rep(0, 8),
-  gw_points = rep(0, 8),
-  hit = rep(0,8),
-  pob = rep(0,8),
-  adj_points = rep(0,8),
-  total_points = rep(0,8),
-  average_entry_points = rep(0,8),
-  points_plus = rep(0,8)
+  manager = c("Ben", "Christian", "Ethan", "Patrick", "Scott"),
+  round = rep(0, 5),
+  gw_points = rep(0, 5),
+  hit = rep(0,5),
+  pob = rep(0,5),
+  adj_points = rep(0,5),
+  total_points = rep(0,5),
+  average_entry_points = rep(0,5),
+  points_plus = rep(0,5)
 )
 
 # scores %>%
@@ -116,7 +116,7 @@ scores |>
     y = "Distance Behind Leader",
     x = "Gameweek"
   )+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -155,7 +155,7 @@ scores |>
 ggplot(scores, aes(round, points_plus, color = manager))+
   geom_point(alpha = 0.33)+
   geom_smooth(se = F)+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   scale_x_continuous(n.breaks = max(scores$round))+
   geom_hline(yintercept = 100, color = "black", linetype = "dashed", alpha = 0.5)+
   theme_minimal()+
@@ -175,11 +175,11 @@ ggplot(scores, aes(round, points_plus, color = manager))+
 ```{r}
 scores %>% 
   group_by(round) %>% 
-  mutate(position = 9 - rank(total_points)) %>% 
+  mutate(position = 6 - rank(total_points)) %>% 
   ggplot(aes(round, position, color = manager))+
   geom_point(size = 4)+
   geom_line()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   scale_x_continuous(n.breaks = max(scores$round))+
   scale_y_reverse()+
   # xlim(17,22)+
@@ -207,7 +207,6 @@ scores %>%
   mutate(points_plus = round(gw_points/average_points*100)) %>% 
   select(manager, gw_points, points_plus) %>% 
   arrange(desc(gw_points)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "Points", "Points+"))
 ```
 
@@ -221,7 +220,6 @@ scores %>%
   arrange(desc(gw_points)) %>% 
   select(manager, round, gw_points, points_plus) %>% 
   head(10) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "GW", "Total Points", "Points+"))
 ```
 
@@ -232,7 +230,6 @@ scores %>%
   arrange(desc(points_plus)) %>% 
   select(manager, round, points_plus, gw_points) %>% 
   head(10) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "GW", "Points+", "Total Points"))
 ```
 
@@ -245,7 +242,6 @@ scores %>%
   summarise(wins = sum(won_gameweek)) %>% 
   ungroup() %>% 
   arrange(desc(wins)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605", manager)) |> 
   kable(col.names = c("Manager", "Wins"))
 
 scores %>% 
@@ -258,7 +254,6 @@ scores %>%
   ggplot(aes(round, win_total, color = manager))+
   geom_line()+
   geom_point()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
   theme_minimal()+
   labs(
     x = "Gameweek",
@@ -283,8 +278,7 @@ scores %>%
     y = "Points Lost to Hits",
     fill = NULL
   )+
-  scale_fill_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"),
-                     guide = "none")+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -303,7 +297,7 @@ scores %>%
     y = "Points Lost to The Bench",
     fill = NULL
   )+
-  scale_fill_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"), 
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), 
                     guide = "none")+
   theme_minimal()+
   theme(
@@ -317,7 +311,7 @@ scores |>
   ggplot(aes(round, cpob, color = manager))+
   geom_point()+
   geom_line()+
-  scale_color_manual(values = c("#38003C","#EDBB00","#132257","#6CABDD", "#12A0D7","#C8102E","#00FF85","#DA291C"))+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
   labs(
     x = "Gameweek",
