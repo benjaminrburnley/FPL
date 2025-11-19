@@ -10,7 +10,7 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # write elements for weekly changes in
-write_csv(elements, "data/gw38_elements.csv")
+write_csv(elements, "data/gw11_elements.csv")
 
 index = elements$id #index of all active player ids 
 
@@ -28,7 +28,7 @@ for(i in index){
 }
 
 ### write data for new gameweek 
-write_csv(data, "data/gw38_stats.csv")
+write_csv(data, "data/gw11_stats.csv")
 
 
 #### MANAGER DATA 
@@ -66,36 +66,30 @@ get_hits = function(name, id){
 
 ### pull data 
 # # individual manager pulls
-ben = get_manager("Ben", 4053672)
-ethan = get_manager("Ethan", 4680842)
-scott = get_manager("Scott", 298444)
-patrick = get_manager("Patrick", 6698309)
-christian = get_manager("Christian", 7297662)
-yuheng = get_manager("Yuheng", 4693202)
-luke = get_manager("Luke", 7320070)
-dan = get_manager("Dan", 8564597)
+ben = get_manager("Ben", 1071941)
+ethan = get_manager("Ethan", 7964349)
+scott = get_manager("Scott", 6655061)
+patrick = get_manager("Patrick", 6896641)
+christian = get_manager("Christian", 6257051)
 
 # get hits 
-ben_hits = get_hits("Ben", 4053672)
-ethan_hits = get_hits("Ethan", 4680842)
-scott_hits = get_hits("Scott", 298444)
-patrick_hits = get_hits("Patrick", 6698309)
-christian_hits = get_hits("Christian", 7297662)
-yuheng_hits = get_hits("Yuheng", 4693202)
-luke_hits = get_hits("Luke", 7320070)
-dan_hits = get_hits("Dan", 8564597)
+ben_hits = get_hits("Ben", 1071941)
+ethan_hits = get_hits("Ethan", 7964349)
+scott_hits = get_hits("Scott", 6655061)
+patrick_hits = get_hits("Patrick", 6896641)
+christian_hits = get_hits("Christian", 6257051)
 
 # # bind together with names and points
 scores = ben %>%
-  bind_rows(ethan, scott, patrick, christian, yuheng, luke, dan) %>%
+  bind_rows(ethan, scott, patrick, christian) %>%
   left_join(names, by = c("element" = "id")) %>%
   left_join(data, by = c("element" = "element", "round" = "round"), relationship = "many-to-many")
 
-write_csv(scores, "data/gw38_scores.csv")
+write_csv(scores, "data/gw11_scores.csv")
 
 # bind hits 
 hits = ben_hits %>% 
-  bind_rows(ethan_hits, scott_hits, patrick_hits, christian_hits, yuheng_hits, luke_hits, dan_hits)
+  bind_rows(ethan_hits, scott_hits, patrick_hits, christian_hits)
 
 # calculate total hits
 total_hits = hits %>% 
@@ -120,4 +114,4 @@ scoreboard = scores %>%
   left_join(average_scores, by = c("round" = "id")) %>% 
   mutate(points_plus = round(gw_points/average_entry_score * 100))
 
-write_csv(scoreboard,"data/gw38_scoreboard.csv")
+write_csv(scoreboard,"data/gw11_scoreboard.csv")

@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw05_elements.csv") 
-stats = read_csv("data/gw05_stats.csv")
-scores = read_csv("data/gw05_scoreboard.csv") 
-scoreboard = read_csv("data/gw05_scores.csv") 
+elements = read_csv("data/gw11_elements.csv") 
+stats = read_csv("data/gw11_stats.csv")
+scores = read_csv("data/gw11_scoreboard.csv") 
+scoreboard = read_csv("data/gw11_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -254,6 +254,7 @@ scores %>%
   ggplot(aes(round, win_total, color = manager))+
   geom_line()+
   geom_point()+
+  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
   labs(
     x = "Gameweek",
@@ -278,7 +279,7 @@ scores %>%
     y = "Points Lost to Hits",
     fill = NULL
   )+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), guide = "none")+
+  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"))+
   theme_minimal()+
   theme(
     plot.title = element_text(face = "bold", size = 14),
@@ -297,7 +298,7 @@ scores %>%
     y = "Points Lost to The Bench",
     fill = NULL
   )+
-  scale_color_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), 
+  scale_fill_manual(values = c("#38003C","#EDBB00","#6CABDD","#C8102E","#00FF85"), 
                     guide = "none")+
   theme_minimal()+
   theme(
@@ -320,4 +321,4 @@ scores |>
   )
   
 ```
-
+1
