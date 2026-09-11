@@ -18,7 +18,7 @@ library(knitr)
 library(kableExtra)
 ```
 
-![](vince_trophy.webp)
+![](vince_happy.webp)
 ```{r}
 #| include: false
 #### GET INDEX ####
@@ -30,10 +30,10 @@ general_info = fromJSON("https://fantasy.premierleague.com/api/bootstrap-static/
 elements = tibble(general_info$elements) # pull out elements dataframe
 
 # main data
-elements = read_csv("data/gw38_elements.csv") 
-stats = read_csv("data/gw38_stats.csv")
-scores = read_csv("data/gw38_scoreboard.csv") 
-scoreboard = read_csv("data/gw38_scores.csv") 
+elements = read_csv("data/gw03_elements.csv") 
+stats = read_csv("data/gw03_stats.csv")
+scores = read_csv("data/gw03_scoreboard.csv") 
+scoreboard = read_csv("data/gw03_scores.csv") 
 
 index = elements$id #index of all active player ids 
 
@@ -48,7 +48,7 @@ scores %>%
   filter(round == max(round)) %>% 
   select(manager, total_points) %>% 
   arrange(desc(total_points)) |> 
-  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605 \U2605", manager)) |> 
+  mutate(manager = if_else(manager == "Ethan", "Ethan \U2605 \U2605 \U2605", manager)) |> 
   kable(col.names = c("Manager", "Total Points"))
 ```
 ```{r}
